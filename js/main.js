@@ -18,6 +18,8 @@ var renderToCanvas = function (width, height, renderFunction) {
 };
 
 var drill = (function () {
+    var SOUND_ENABLED = true;
+
     var State = {
         STOPPED: 'stopped',
         RUNNING: 'running',
@@ -53,6 +55,9 @@ var drill = (function () {
     var canvasWidth, canvasHeight;
 
     var sprites = {};
+    var sounds = {};
+
+    var currentSound = null;
 
     var levels = [
         {
@@ -94,14 +99,26 @@ var drill = (function () {
             width: 5523,
             height: 4308,
             oilRegions: [
-                { x: 1763, y: 408, width: 900, height: 850 },
-                { x: 2950, y: 384, width: 900, height: 850 },
-                { x: 569, y: 1338, width: 900, height: 850 },
-                { x: 551, y: 2238, width: 900, height: 850 },
-                { x: 1757, y: 3168, width: 900, height: 850 },
-                { x: 2956, y: 2214, width: 900, height: 850 },
-                { x: 4167, y: 3186, width: 900, height: 850 },
-                { x: 4173, y: 1338, width: 900, height: 850 }
+                { x: 1763, y: 408, width: 1150, height: 1100 },
+                { x: 2950, y: 384, width: 1150, height: 1100 },
+                { x: 569, y: 1338, width: 1150, height: 1100 },
+                { x: 551, y: 2238, width: 1150, height: 1100 },
+                { x: 1757, y: 3168, width: 1150, height: 1100 },
+                { x: 2956, y: 2214, width: 1150, height: 1100 },
+                { x: 4167, y: 3186, width: 1150, height: 1100 },
+                { x: 4173, y: 1338, width: 1150, height: 1100 }
+            ]
+        },
+        {
+            svg: 'levels/level6.svg',
+            width: 5523,
+            height: 4308,
+            oilRegions: [
+                { x: 395, y: 132, width: 1189, height: 1044 },
+                { x: 401, y: 3114, width: 1189, height: 1044 },
+                { x: 4065, y: 3118, width: 1189, height: 1044 },
+                { x: 4065, y: 150, width: 1189, height: 1044 },
+                { x: 1643, y: 1314, width: 2405, height: 1506 }
             ]
         }
     ]
@@ -153,12 +170,12 @@ var drill = (function () {
         }
 
         ctx.fillStyle = '#d35f5f';
-        ctx.fillRect(canvasWidth - 221, 11, 210, 200 * level.width / level.height + 10);
+        ctx.fillRect(canvasWidth - 221, 11, 210, 200 * level.height / level.width + 10);
         ctx.drawImage(level.miniMap, canvasWidth - 216, 16);
 
-        if(player.y > 190) {
+        if (player.y > 190) {
             var miniMapPlayerX = player.x / level.width * 200;
-            var miniMapPlayerY = (player.y - 189) / level.height * (200 * level.width / level.height);
+            var miniMapPlayerY = (player.y - 189) / level.height * (200 * level.height / level.width);
 
             ctx.beginPath();
             ctx.arc(canvasWidth - 216 + miniMapPlayerX, 16 + miniMapPlayerY, 4, 2 * Math.PI, false);
@@ -173,7 +190,7 @@ var drill = (function () {
         var x = player.x - player.width / 2;
         var y = player.y - player.height / 2;
 
-        if (player.state == State.STOPPED || player.state == State.DEAD || player.state == State.WON) {
+        if (player.state == State.STOPPED || player.state == State.DEAD || player.state == State.WON || player.state == State.GAME_WON) {
 
             ctx.save();
             ctx.translate(player.x, player.y);
@@ -220,29 +237,44 @@ var drill = (function () {
             var modifier = getModifier([ imageData.data[0], imageData.data[1], imageData.data[2], imageData.data[3] ]);
             if (modifier == 0 || (player.y < 190 && player.started)) {
                 player.state = State.DEAD;
+                sounds[currentSound].stop();
+                if(SOUND_ENABLED) {
+                    sounds['explosion'].play();
+                }
             } else if (modifier == -1) {
                 for (var i = 0; i < level.oilRegions.length; i++) {
                     var checkX = player.x + lookAheadX;
-                    var checkY = player.y + lookAheadY;
+                    var checkY = player.y + lookAheadY - 189;
 
                     var isContained = contains(level.oilRegions[i], checkX, checkY);
                     var notYetChecked = !checks.hasOwnProperty(i + '');
                     if (isContained && notYetChecked) {
                         console.log('Check at ' + checkX + ',' + checkY);
-                        checks[i + ''] = { x: checkX, y: checkY};
+                        checks[i + ''] = { x: checkX, y: checkY + 189};
+                        if(SOUND_ENABLED) {
+                            sounds['check'].play();
+                        }
 
                         if (Object.keys(checks).length >= level.oilRegions.length) {
-
                             if (currentLevel < levels.length - 1) {
                                 player.state = State.WON;
                             } else {
                                 player.state = State.GAME_WON;
                             }
-
+                            sounds[currentSound].stop();
                         }
                     }
                 }
                 modifier = 1;
+            }
+
+            var newSound = getSound(modifier);
+            if (player.state == State.RUNNING && currentSound != newSound) {
+                sounds[currentSound].stop();
+                if(SOUND_ENABLED) {
+                    sounds[newSound].play({ loops: 3 });
+                }
+                currentSound = newSound;
             }
 
             // Calculate new position
@@ -270,10 +302,10 @@ var drill = (function () {
                 player.started = true;
                 var maxIndex = getMaxIndex(keys);
                 if (maxIndex == LEFT) {
-                    console.log('Turning left');
+                    //console.log('Turning left');
                     player.rotation += player.rotationSpeed;
                 } else if (maxIndex == RIGHT) {
-                    console.log('Turning right');
+                    //console.log('Turning right');
                     player.rotation -= player.rotationSpeed;
                 }
             }
@@ -283,6 +315,16 @@ var drill = (function () {
     function contains(region, x, y) {
         return x > region.x && x < region.x + region.width
             && y > region.y && y < region.y + region.height;
+    }
+
+    function getSound(modifier) {
+        if(modifier < 1) {
+            return 'drill_tough';
+        } else if(modifier > 1) {
+            return 'drill_fast';
+        } else {
+            return 'drill_normal';
+        }
     }
 
     function getModifier(imageData) {
@@ -320,6 +362,10 @@ var drill = (function () {
     function action() {
         if (player.state == State.STOPPED) {
             player.state = State.RUNNING;
+            if(SOUND_ENABLED) {
+                sounds['drill_normal'].play({ loops: 3 });
+            }
+            currentSound = 'drill_normal';
         } else if (player.state == State.DEAD) {
             loadLevel(currentLevel);
         } else if (player.state == State.WON) {
@@ -336,8 +382,8 @@ var drill = (function () {
             ctx.drawSvg(level.svg, 0, 0, level.width, level.height);
         });
         level.canvasCtx = level.canvas.getContext('2d');
-        level.miniMap = renderToCanvas(200, 200 * level.width / level.height, function (ctx) {
-            ctx.drawSvg(level.svg, 0, 0, 200, 200 * level.width / level.height);
+        level.miniMap = renderToCanvas(200, 200 * level.height / level.width, function (ctx) {
+            ctx.drawSvg(level.svg, 0, 0, 200, 200 * level.height / level.width);
         });
 
         player = {
@@ -381,15 +427,15 @@ var drill = (function () {
 
         var loaded = 0;
         var sources = [];
+        var soundsLoaded = 0;
+        var soundPaths = [ 'drill_normal', 'drill_fast', 'drill_tough', 'check', 'explosion' ];
 
         for (var i = 0; i < drillSprites.length; i++) {
             sources.push('img/' + drillSprites[i]);
         }
-
         for (var i = 0; i < miscSprites.length; i++) {
             sources.push('img/' + miscSprites[i]);
         }
-
         for (var i = 0; i < fireSprites.length; i++) {
             sources.push('img/' + fireSprites[i]);
         }
@@ -399,11 +445,54 @@ var drill = (function () {
             var name = this.id.substr(this.id.indexOf('/') + 1);
             console.log('Loaded ' + this.id);
             sprites[name] = this;
-            if (loaded == sources.length) {
-                loadLevel(4);
+            if (loaded >= sources.length && soundsLoaded >= soundPaths.length) {
+                console.log('Starting game');
+                loadLevel(0);
                 requestAnimationFrame(loop);
             }
         }
+
+        for (var i = 0; i < sources.length; i++) {
+            var imageObj = new Image();
+            imageObj.onload = onload;
+            imageObj.id = sources[i];
+            imageObj.src = sources[i];
+        }
+
+        var onloadSound = function () {
+            soundsLoaded++;
+            console.log('Loaded sound ' + this.id);
+            if (loaded >= sources.length && soundsLoaded >= soundPaths.length) {
+                console.log('Starting game');
+                loadLevel(0);
+                requestAnimationFrame(loop);
+            }
+        }
+
+        function loadSounds() {
+            for (var i = 0; i < soundPaths.length; i++) {
+                sounds[soundPaths[i]] = soundManager.createSound({
+                    id: soundPaths[i],
+                    url: 'sfx/' + soundPaths[i] + '.wav',
+                    autoLoad: true,
+                    volume: 60,
+                    onload: onloadSound
+                });
+            }
+        }
+
+        soundManager.setup({
+            url: 'js/vendor/swf',
+            preferFlash: true,
+            debugMode: false,
+            flashVersion: 9, // optional: shiny features (default = 8)
+            // optional: ignore Flash where possible, use 100% HTML5 mode
+            // preferFlash: false,
+            onready: function () {
+                loadSounds();
+            }
+        });
+
 
         //Set up key listener
         var keyListener = function (e) {
@@ -429,13 +518,6 @@ var drill = (function () {
         };
         document.onkeyup = keyListener;
         document.onkeydown = keyListener;
-
-        for (var i = 0; i < sources.length; i++) {
-            var imageObj = new Image();
-            imageObj.onload = onload;
-            imageObj.id = sources[i];
-            imageObj.src = sources[i];
-        }
     }
 
     return {

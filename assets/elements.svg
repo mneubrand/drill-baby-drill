@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="drawing.svg">
+   sodipodi:docname="elements.svg">
   <defs
      id="defs4">
     <radialGradient
@@ -374,9 +374,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="119.30193"
-     inkscape:cy="529.08212"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="195.1538"
+     inkscape:cy="538.40668"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -404,8 +404,8 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       inkscape:export-ydpi="151.31172"
-       inkscape:export-xdpi="151.31172"
+       inkscape:export-ydpi="153.41"
+       inkscape:export-xdpi="153.41"
        inkscape:export-filename="C:\Users\Markus\instructions.png"
        style="fill:#e3ddc7;fill-opacity:1;fill-rule:nonzero;stroke:none"
        id="rect4400"
@@ -3431,7 +3431,7 @@
        inkscape:export-filename="C:\Users\Markus\instructions.png"
        inkscape:export-xdpi="151.31172"
        inkscape:export-ydpi="151.31172"
-       transform="matrix(0.48129648,0,0,0.48129648,0.21786075,62.54154)"><tspan
+       transform="matrix(0.42188496,0,0,0.42188496,0.69778639,70.168305)"><tspan
          sodipodi:role="line"
          id="tspan4394"
          x="14.571413"
@@ -3595,7 +3595,7 @@
        height="16.588547"
        width="16.588547"
        id="rect4519"
-       style="fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:#304e5f;stroke-width:0.89322954;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#666666;fill-opacity:1;fill-rule:nonzero;stroke:#304e5f;stroke-width:0.89322953999999999;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        inkscape:export-filename="C:\Users\Markus\instructions.png"
        inkscape:export-xdpi="151.31172"
        inkscape:export-ydpi="151.31172" />
@@ -3915,5 +3915,26 @@
          x="264.41937"
          sodipodi:role="line"
          id="tspan4714">Hope you enjoyed it</tspan></text>
+    <text
+       transform="matrix(0.09811965,0,0,0.09811965,4.9292053,208.94444)"
+       inkscape:export-ydpi="151.31172"
+       inkscape:export-xdpi="151.31172"
+       inkscape:export-filename="C:\Users\Markus\instructions.png"
+       sodipodi:linespacing="125%"
+       id="text4219"
+       y="183.13022"
+       x="14.571413"
+       style="font-size:62.1075592px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#304e5f;fill-opacity:1;stroke:none;filter:url(#filter4446);font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#304e5f;fill-opacity:1;font-family:Gungsuh;-inkscape-font-specification:Gungsuh Bold"
+         id="tspan4225"
+         y="183.13022"
+         x="14.571413"
+         sodipodi:role="line">Ludum Dare 29</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#304e5f;fill-opacity:1;font-family:Gungsuh;-inkscape-font-specification:Gungsuh Bold"
+         y="260.76468"
+         x="14.571413"
+         sodipodi:role="line"
+         id="tspan4232">© Markus Neubrand 2014</tspan></text>
   </g>
 </svg>
